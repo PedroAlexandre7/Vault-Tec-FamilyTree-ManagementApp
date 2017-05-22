@@ -38,7 +38,7 @@ def three():
 	This feature is still in alpha. In the future it will not the relationship between any two persons if present including,
 	cousins, uncles, great grandparents and more.
 
-	Currently this feature only checks for direct parents and children and siblings.
+	Currently this feature only checks for direct parents, children, siblings and spouse.
 
 """)
 

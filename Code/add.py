@@ -18,11 +18,11 @@ class Person():
 		dic = {'name':name,'gender':gender,'mother':mother,'father':father,'alive':alive,'time_of_birth':str(time_of_birth)}
 		info = json.dumps(dic)
 
-		file = open('fallout.json', 'r')
+		file = open('vault.json', 'r')
 		lines = file.readlines()
 		file.close()
 
-		file = open('fallout.json', 'w')
+		file = open('vault.json', 'w')
 		for l in lines:
 			if l != "]":
 				file.write(l)
@@ -51,7 +51,7 @@ def add():
 			person.born(name,gender,mother,father)
 	elif state == '1':
 		name = input("Name?: ")
-		file = open('fallout.json')
+		file = open('vault.json')
 		data = json.load(file)
 		for line in data:
 			if line['name'] == name:
@@ -75,11 +75,11 @@ def add():
 				dic = {'name':name,'gender':gender,'mother':mother,'father':father,'alive':False,'time_of_birth':str(time_of_birth),'time_of_death':str(time_of_death)}
 				info = json.dumps(dic)
 
-				file = open('fallout.json', 'r')
+				file = open('vault.json', 'r')
 				lines = file.readlines()
 				file.close()
 
-				file = open('fallout.json', 'w')
+				file = open('vault.json', 'w')
 				for l in lines:
 					if l != "]":
 						file.write(l)
