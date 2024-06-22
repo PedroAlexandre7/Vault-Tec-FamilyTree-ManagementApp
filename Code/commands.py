@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 def open_json_file():
-	file = open('Data/vault.json')
+	file = open('Data/vaultDwellers.json')
 	data = json.load(file)
 	file.close()
 

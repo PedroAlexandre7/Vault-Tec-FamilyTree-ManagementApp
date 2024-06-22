@@ -2,7 +2,8 @@ from datetime import datetime
 import json
 
 class Person():
-	def __init__(self, name, gender, mother='N/A', father='N/A', alive=True, time_of_birth=datetime.now()):
+	def __init__(self, id, name, gender, mother='N/A', father='N/A', alive=True, time_of_birth=datetime.now()):
+		self.id = id
 		self.name = name
 		self.gender = gender
 		self.mother = mother
@@ -18,11 +19,11 @@ class Person():
 		dic = {'name':name,'gender':gender,'mother':mother,'father':father,'alive':alive,'time_of_birth':str(time_of_birth)}
 		info = json.dumps(dic)
 
-		file = open('vault.json', 'r')
+		file = open('Data/vaultDwellers.json', 'r')
 		lines = file.readlines()
 		file.close()
 
-		file = open('vault.json', 'w')
+		file = open('Data/vaultDwellers.json', 'w')
 		for l in lines:
 			if l != "]":
 				file.write(l)
@@ -51,7 +52,7 @@ def add():
 			person.born(name,gender,mother,father)
 	elif state == '1':
 		name = input("Name?: ")
-		file = open('vault.json')
+		file = open('Data/vaultDwellers.json')
 		data = json.load(file)
 		for line in data:
 			if line['name'] == name:
@@ -75,11 +76,11 @@ def add():
 				dic = {'name':name,'gender':gender,'mother':mother,'father':father,'alive':False,'time_of_birth':str(time_of_birth),'time_of_death':str(time_of_death)}
 				info = json.dumps(dic)
 
-				file = open('vault.json', 'r')
+				file = open('Data/vaultDwellers.json', 'r')
 				lines = file.readlines()
 				file.close()
 
-				file = open('vault.json', 'w')
+				file = open('Data/vaultDwellers.json', 'w')
 				for l in lines:
 					if l != "]":
 						file.write(l)
