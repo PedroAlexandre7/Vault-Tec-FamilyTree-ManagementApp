@@ -4,11 +4,25 @@ import kotlinx.serialization.encodeToString
 import java.io.File
 import kotlinx.coroutines.*
 
-class VaultTecVault {
+class VaultTecVault private constructor() {
+
+    companion object {
+
+        @Volatile
+        private var instance: VaultTecVault? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: VaultTecVault().also { instance = it }
+            }
+    }
+
     private val vaultFile = File("AppData/vault.json")
     private val appDataFile = File("AppData/settings.json")
     private val vaultBackupFile = File("AppData/vaultBackup.json")
     private val appDataBackupFile = File("AppData/settingsBackup.json")
+
+    private val updaterCoroutine = CoroutineScope(Dispatchers.IO)
 
     private val json = Json {
         encodeDefaults = true
@@ -59,29 +73,8 @@ class VaultTecVault {
 
     init {
         createFilesAndDirectories()
-        try {
-            val counter = json.decodeFromString<Int>(appDataFile.readText())
-            val backupCounter = json.decodeFromString<Int>(appDataFile.readText())
-            iDCounter = if (counter > backupCounter) counter else backupCounter
-        }catch(e:Exception){
-            println("Error while loading important information... if this is the second time it happens you're going to loose some dwellers. Please contact developer before using the app!!")
-            iDCounter = 1000
-        }
-        updaterLoop()
-        println("bye")
-    }
-
-    private fun updaterLoop()  {
-        CoroutineScope(Dispatchers.IO).launch { // launch a new coroutine and continue
-            while (true) {
-                delay(5000)
-                println("hi")
-                saveData()
-                delay(1000)
-                backupData()
-            }
-        }
-        println("bye")
+        getCounter()
+        startUpdating()
     }
 
     private fun createFilesAndDirectories() {
@@ -92,14 +85,42 @@ class VaultTecVault {
         appDataBackupFile.createNewFile()
     }
 
+    private fun getCounter() {
+        try {
+            val counter = json.decodeFromString<Int>(appDataFile.readText())
+            val backupCounter = json.decodeFromString<Int>(appDataFile.readText())
+            iDCounter = if (counter > backupCounter) counter else backupCounter
+        } catch (e: Exception) {
+            println("Error while loading important information... if this is the second time it happens you're going to loose some dwellers. Please contact developer before using the app!!")
+            iDCounter = 1000
+        }
+    }
+
+    private fun startUpdating()  {
+        updaterCoroutine.launch { // launch a new coroutine and continue
+            while (true) {
+                delay(5000)
+                saveData()
+                delay(1000)
+                backupData()
+            }
+        }
+    }
+
     fun getDwellerId(name: String):Int? {
         vaultDwellers.values.forEach{if (it.name == name) return it.id}
         return null
     }
 
-    fun addDweller(name: String, sex: Sex, motherId: Int? = null, fatherId: Int? = null) {
-        val splitedName = name.split(" ", limit = 2)
+    fun addDweller(name: String, sex: Sex, motherId: Int? = null, fatherId: Int? = null) {//TODO make mother and father logic (partners and childreen)
+        var splitedName = name.split(" ", limit = 2)
+        if (splitedName.size==1)
+            splitedName = listOf(splitedName[0], "")
         vaultDwellers[iDCounter] = VaultTecDweller(iDCounter++, splitedName[0], splitedName[1], sex, motherId, fatherId)
+    }
+
+    fun getDweller(id: Int?): VaultTecDweller?{
+        return vaultDwellers[id]
     }
 
     fun reportDeath(name: String){
@@ -109,17 +130,16 @@ class VaultTecVault {
     fun saveData() {
         appDataFile.writeText(json.encodeToString(iDCounter))
         vaultFile.writeText(json.encodeToString(vaultDwellers.values.toList()))
-        println("saved")
     }
 
     private fun backupData() {
         appDataBackupFile.writeText(json.encodeToString(iDCounter))
         vaultBackupFile.writeText(json.encodeToString(vaultDwellers.values.toList()))
-        println("backed up")
     }
 
 }
 
 suspend fun main() {
+    VaultTecFamilyTreeMenu.getInstance().start()
 
 }
